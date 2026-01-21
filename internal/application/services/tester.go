@@ -35,3 +35,19 @@ func (s *TesterService) UpdateTest(Id string,d *domain.TestInputUpdate) (*db.Tes
 	}
 	return s.R.Update(uint(id), d)
 }
+
+func (s * TesterService) DeleteTest(Id string)(error) {
+    id , err := strconv.ParseUint(Id , 10, 32)
+	if err != nil {
+		return  err
+	}
+	return s.R.Delete(uint(id))
+}
+
+func (s * TesterService) GetTest(Id string)(*db.TestModel ,error) {
+    id , err := strconv.ParseUint(Id , 10, 32)
+	if err != nil {
+		return nil, err
+	}
+	return s.R.Get(uint(id))
+}

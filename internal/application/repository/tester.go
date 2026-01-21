@@ -2,7 +2,6 @@ package repository
 
 import (
 	"errors"
-
 	"github.com/marveldo/gogin/internal/application/domain"
 	"github.com/marveldo/gogin/internal/db"
 	"gorm.io/gorm"
@@ -49,5 +48,30 @@ func (r *TesterRepository) Update(id uint, d *domain.TestInputUpdate ) (*db.Test
 
 
 
+func (r *TesterRepository)Delete(id uint) (error) {
+  u_r := &db.TestModel{}
+  result := r.DB.Model(u_r).Where("id= ?", id).Delete(u_r)
+
+  if result.Error != nil {
+	return result.Error
+  }
+  if result.RowsAffected == 0 {
+	return  errors.New("Query Object Not Found")
+  }
+  return nil
+}
 
 
+func (r *TesterRepository) Get (id uint) (*db.TestModel , error) {
+	u_r := &db.TestModel{
+		ID: id,
+	}
+	result := r.DB.Find(u_r)
+    if result.Error != nil {
+	   return nil , result.Error
+    }
+   if result.RowsAffected == 0 {
+	return nil , errors.New("Query Object Not Found")
+   }
+	return u_r , nil
+}

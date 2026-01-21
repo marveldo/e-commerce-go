@@ -2,7 +2,8 @@ package apperrors
 
 import (
 	"errors"
-
+	"net/http"
+    "github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
 
@@ -17,7 +18,46 @@ func CheckDuplicatekeyError(err error) ( bool ){
        return false 
 	}
 }
+func CheckNotFoundError(err error)(bool) {
+	if err == nil {
+		return false 
+	}
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return true
+	}else {
+		return false
+	}
+}
 
 func UpdateNotFoundError(err error) (bool){
 	return  err.Error() == "Query Object Not Found"
+}
+
+func ErrorFormat (g *gin.Context,err error){
+		if CheckDuplicatekeyError(err){
+			g.JSON(http.StatusBadRequest, gin.H{
+				"status" : http.StatusBadRequest,
+				"error":  err.Error(),
+			})
+		
+
+         }else if UpdateNotFoundError(err){
+            g.JSON(http.StatusNotFound, gin.H{
+				"status" : http.StatusNotFound,
+				"error":  err.Error(),
+			})
+		
+		  }else if CheckNotFoundError(err){
+			g.JSON(http.StatusNotFound, gin.H{
+				"status" : http.StatusNotFound,
+				"error":  err.Error(),
+			})
+
+		  } else {
+			g.JSON(http.StatusInternalServerError, gin.H{
+				"status" : http.StatusInternalServerError,
+				"error":  err.Error(),
+			})
+			
+		  }
 }
