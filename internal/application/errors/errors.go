@@ -30,7 +30,13 @@ func CheckNotFoundError(err error)(bool) {
 }
 
 func UpdateNotFoundError(err error) (bool){
-	return  err.Error() == "Query Object Not Found"
+	q := err.Error() == "Query Object Not Found"
+	q1 := errors.Is(err, gorm.ErrRecordNotFound)
+	return q || q1
+}
+
+func PasswordIncorrect(err error)(bool) {
+	return err.Error() == "Password Not Correct"
 }
 
 func ErrorFormat (g *gin.Context,err error){
@@ -53,7 +59,12 @@ func ErrorFormat (g *gin.Context,err error){
 				"error":  err.Error(),
 			})
 
-		  } else {
+		  }else if PasswordIncorrect(err){
+			g.JSON(http.StatusUnauthorized , gin.H{
+				"status" : http.StatusUnauthorized,
+				"error":  err.Error(),
+			})
+		  }  else {
 			g.JSON(http.StatusInternalServerError, gin.H{
 				"status" : http.StatusInternalServerError,
 				"error":  err.Error(),

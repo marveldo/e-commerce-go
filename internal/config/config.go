@@ -16,22 +16,24 @@ type Config struct {
 	JWTSecret  string
 }
 
+var config *Config
+
 func LoadConfig() *Config {
-	err := godotenv.Load()
-	if err != nil {
-		panic(fmt.Sprintf("Error loading .env file: %v", err))
+	if config == nil {
+		err := godotenv.Load()
+		if err != nil {
+			panic(fmt.Sprintf("Error loading .env file: %v", err))
+		}
+		config = &Config{
+			Host:       os.Getenv("HOST"),
+			Port:       os.Getenv("DB_PORT"),
+			DBname:     os.Getenv("DB_NAME"),
+			DBUser:     os.Getenv("DB_USER"),
+			DBPassword: os.Getenv("DB_PASSWORD"),
+			JWTSecret:  os.Getenv("JWTSECRET"),
+		}
 	}
 
-	
-	config := &Config{
-		Host:       os.Getenv("HOST"),
-		Port:       os.Getenv("DB_PORT"),
-		DBname:     os.Getenv("DB_NAME"),
-		DBUser:     os.Getenv("DB_USER"),
-		DBPassword: os.Getenv("DB_PASSWORD"),
-		JWTSecret:  os.Getenv("JWTSECRET"),
-	}
-	
 	return config
 
 }

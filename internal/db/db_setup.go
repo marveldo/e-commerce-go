@@ -17,6 +17,6 @@ func Setup(c *config.Config) (*gorm.DB , error) {
 
 func Get_db_models() []interface{} {
 	var models []interface{}
-    models = append(models, &TestModel{})
+    models = append(models, &TestModel{}, &UserModel{})
 	return models
 }
