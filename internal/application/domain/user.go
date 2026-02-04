@@ -22,6 +22,7 @@ type LoginInput struct {
 
 type LoginResponse struct {
 	User    *db.UserModel `json:"user"`
-	Access  string   `json:"access"`
-	Refresh string   `json:"refresh"`
+	Access  string        `json:"access"`
+	Refresh string        `json:"refresh"`
 }
+

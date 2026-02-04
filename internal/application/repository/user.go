@@ -18,7 +18,7 @@ func (u *Userrespository) Createuser(i *domain.UserInput) (*db.UserModel, error)
 		Bio:      i.Bio,
 		Password: i.Password,
 	}
-	err := u.DB.Create(&user).Error
+	err := u.DB.Preload("Author").Create(&user).Error
 	return &user, err
 }
 
@@ -28,7 +28,7 @@ func (u *Userrespository) GetUser(i *domain.GetUserQuery) (*db.UserModel, error)
 	if err != nil {
 		return nil, err
 	}
-	result := u.DB.Where(user).First(user)
+	result := u.DB.Where(user).Preload("Author").First(user)
 	if result.Error != nil {
 		return nil, result.Error
 	}

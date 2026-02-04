@@ -23,9 +23,12 @@ func Setup() {
 	t_s := services.TesterService{R : &t_r}
 	u_r := repository.Userrespository{DB: dab}
 	u_s := services.Userservice{R: &u_r}
+	a_r := repository.AuthorRepository{DB: dab}
+	a_s := services.AuthorService{R : &a_r , U : &u_r}
     
 	e := routes.GetEngine()
 	handlers.NewTestHandler(e, &t_s)
 	handlers.NewUserHandler(e, &u_s )
+	handlers.NewAuthorHandler(e, &a_s)
     e.Run()
 }

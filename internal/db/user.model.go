@@ -14,8 +14,10 @@ type UserModel struct {
 	Username  string `gorm:"unique"`
 	Email     string `gorm:"unique"`
 	Bio       *string
-	Password  string   `json:"-"`
-	Role      UserRole `gorm:"type:text;default:user"`
+	Password  string       `json:"-"`
+	Book      []*Bookmodel `gorm:"many2many:owner_book"`
+	Author    *AuthorModel `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE"`
+	Role      UserRole     `gorm:"type:text;default:user"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
