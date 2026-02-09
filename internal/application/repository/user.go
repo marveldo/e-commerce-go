@@ -28,7 +28,7 @@ func (u *Userrespository) GetUser(i *domain.GetUserQuery) (*db.UserModel, error)
 	if err != nil {
 		return nil, err
 	}
-	result := u.DB.Where(user).Preload("Author").First(user)
+	result := u.DB.Where(user).First(user)
 	if result.Error != nil {
 		return nil, result.Error
 	}

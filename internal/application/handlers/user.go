@@ -71,11 +71,31 @@ func (u *Userhandler) GetLoginUser(r *gin.Context) {
 	})
 }
 
+func (u *Userhandler) GoogleLogin(r *gin.Context) {
+	input := dto.GoogleLoginInputDto{}
+	input_domain := domain.GoogleLoginDomain{}
+	result := validator.Validate(r, &input, &input_domain)
+	if result == nil {
+		return
+	}
+	data, err := u.services.GoogleLogin(result)
+	if err != nil {
+		apperrors.ErrorFormat(r, err)
+		return
+	}
+	r.JSON(http.StatusOK, gin.H{
+		"code":    http.StatusOK,
+		"message": "User Login Successful",
+		"data":    data,
+	})
+}
 func (u *Userhandler) Initialize(r *gin.Engine) {
 	hg := r.Group("/api/v1")
 	hg.POST("/user", u.Register)
 	hg.POST("/login", u.Login)
 	hg.GET("/user", middleware.Authmiddleware(), u.GetLoginUser)
+	hg.POST("/google", u.GoogleLogin)
+
 }
 
 func NewUserHandler(r *gin.Engine, s *services.Userservice) {

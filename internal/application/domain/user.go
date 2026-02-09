@@ -26,3 +26,7 @@ type LoginResponse struct {
 	Refresh string        `json:"refresh"`
 }
 
+type GoogleLoginDomain struct {
+	IDtoken string
+}
+

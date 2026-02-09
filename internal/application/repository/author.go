@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"github.com/jinzhu/copier"
 	"github.com/marveldo/gogin/internal/application/domain"
 	"github.com/marveldo/gogin/internal/db"
 	"gorm.io/gorm"
@@ -10,24 +11,44 @@ type AuthorRepository struct {
 	DB *gorm.DB
 }
 
-func (a *AuthorRepository) CreateAuthor(user *db.UserModel, author *domain.AuthorInput) (*db.UserModel, error) {
-	authorM := db.AuthorModel{
-		Username: author.Username,
+func (r *AuthorRepository) CreateorGetAuthors(authors []domain.AuthorInput) ([]*db.AuthorModel, error) {
+	var authorModels []*db.AuthorModel
+	for _, authorInput := range authors {
+		var authorModel db.AuthorModel
+		result := r.DB.Where(db.AuthorModel{Username: authorInput.Username}).FirstOrCreate(&authorModel)
+		if result.Error != nil {
+			return nil, result.Error
+		}
+		authorModels = append(authorModels, &authorModel)
 	}
+	return authorModels, nil
+}
 
-	var existingAuthor db.AuthorModel
-	err := a.DB.Where("user_id = ?", user.ID).First(&existingAuthor).Error
-	if err == nil {
-		return nil, gorm.ErrForeignKeyViolated
-	}
-	err = a.DB.Model(user).Association("Author").Append(&authorM)
+func (r *AuthorRepository) GetallAuthors() ([]*db.AuthorModel, error) {
+	var authors []*db.AuthorModel
+	err := r.DB.Preload("Books").Find(&authors).Error
+	return authors, err
+}
+
+func (r *AuthorRepository) CreateAuthor(author *domain.AuthorInput) (*db.AuthorModel, error) {
+	authorModel := &db.AuthorModel{}
+	err := copier.Copy(authorModel, author)
 	if err != nil {
 		return nil, err
 	}
-	result := a.DB.Preload("Author").First(user)
-	if result.Error != nil {
-		return nil, result.Error
-	}
-	return user, nil
+	err = r.DB.Create(authorModel).Error
+	return authorModel, err
+}
 
+func (r *AuthorRepository) DeleteAuthor(author *domain.GetAuthorQuery) error {
+	authorModel := &db.AuthorModel{}
+	err := copier.Copy(authorModel, author)
+	if err != nil {
+		return err
+	}
+	err = r.DB.Delete(authorModel).Error
+	if err != nil {
+		return err
+	}
+	return nil
 }

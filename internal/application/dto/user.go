@@ -12,3 +12,7 @@ type LoginInputDto struct {
 	Email    string `json:"email" binding:"required,checkemail"`
 	Password string `json:"password" binding:"required"`
 }
+
+type GoogleLoginInputDto struct {
+	IDtoken string `json:"id_token" binding:"required"`
+}

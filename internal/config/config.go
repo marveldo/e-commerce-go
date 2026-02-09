@@ -14,6 +14,8 @@ type Config struct {
 	DBUser     string
 	DBPassword string
 	JWTSecret  string
+	Google_Client_Id string
+	Google_Client_Secret string
 }
 
 var config *Config
@@ -31,6 +33,8 @@ func LoadConfig() *Config {
 			DBUser:     os.Getenv("DB_USER"),
 			DBPassword: os.Getenv("DB_PASSWORD"),
 			JWTSecret:  os.Getenv("JWTSECRET"),
+			Google_Client_Id: os.Getenv("GOOGLE_CLIENT_ID"),
+			Google_Client_Secret: os.Getenv("GOOGLE_CLIENT_SECRET"),
 		}
 	}
 

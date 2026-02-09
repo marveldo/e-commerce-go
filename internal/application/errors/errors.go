@@ -44,6 +44,28 @@ func PasswordIncorrect(err error) bool {
 	return err.Error() == "Password Not Correct"
 }
 
+func InvalidTokenError(err error) bool {
+	msg := err.Error()
+	switch msg {
+	case "idtoken: audience provided does not match aud claim in the JWT":
+		return true
+	case "idtoken: token is expired":
+		return true
+	case "idtoken: token is not valid yet":
+		return true
+	case "idtoken: token signature verification failed":
+		return true
+	case "idtoken: invalid token, token must have three segments; found 1":
+		return true
+	case "idtoken: invalid token, token must have three segments; found 2":
+		return true
+	case "idtoken: invalid token, token must have three segments; found 0":
+		return true
+	default:
+		return false
+	}
+}
+
 func ErrorFormat(g *gin.Context, err error) {
 	if CheckDuplicatekeyError(err) {
 		g.JSON(http.StatusBadRequest, gin.H{
@@ -72,6 +94,11 @@ func ErrorFormat(g *gin.Context, err error) {
 	} else if ForeignKeyConstraintError(err) {
 		g.JSON(http.StatusBadRequest, gin.H{
 			"status": http.StatusBadRequest,
+			"error":  err.Error(),
+		})
+	} else if InvalidTokenError(err) {
+		g.JSON(http.StatusUnauthorized, gin.H{
+			"status": http.StatusUnauthorized,
 			"error":  err.Error(),
 		})
 	} else {

@@ -24,11 +24,14 @@ func Setup() {
 	u_r := repository.Userrespository{DB: dab}
 	u_s := services.Userservice{R: &u_r}
 	a_r := repository.AuthorRepository{DB: dab}
-	a_s := services.AuthorService{R : &a_r , U : &u_r}
+	b_r := repository.BookRepository{DB: dab}
+	b_s := services.BookService{B: &b_r, A : &a_r}
+	a_s := services.AuthorService{R : &a_r}
     
 	e := routes.GetEngine()
 	handlers.NewTestHandler(e, &t_s)
 	handlers.NewUserHandler(e, &u_s )
+	handlers.NewBookHandler(e , &b_s)
 	handlers.NewAuthorHandler(e, &a_s)
     e.Run()
 }

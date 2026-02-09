@@ -23,6 +23,7 @@ func AddValidators() []ValidatorType {
 	validators := []ValidatorType{
 	   {"checkemail", Emailformat},
 	   {"checkpassword", PasswirdFormat},
+	   {"checkgenre" , BookGenreValidator},			
 	}
 	return validators
 }

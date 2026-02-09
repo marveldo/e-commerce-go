@@ -1,6 +1,8 @@
 package services
 
 import (
+	"strconv"
+
 	"github.com/marveldo/gogin/internal/application/domain"
 	"github.com/marveldo/gogin/internal/application/repository"
 	"github.com/marveldo/gogin/internal/db"
@@ -8,16 +10,26 @@ import (
 
 type AuthorService struct {
 	R *repository.AuthorRepository
-	U *repository.Userrespository
 }
 
-func (s *AuthorService) CreateAuthor(authorInput *domain.AuthorInput , user_id uint) (*db.UserModel, error){
-	query := &domain.GetUserQuery{
-		ID: &user_id,
-	}
-	user , err := s.U.GetUser(query)
-	if err != nil {
-		return nil, err
-	}
-	return s.R.CreateAuthor(user , authorInput)
+func (s *AuthorService) CreateAuthor(author *domain.AuthorInput) (*db.AuthorModel, error) {
+	return s.R.CreateAuthor(author)
 }
+
+func (s *AuthorService) DeleteAuthor(Id string) error {
+	id, err := strconv.ParseUint(Id, 10, 32)
+	if err != nil {
+		return err
+	}
+	up_id := uint(id)
+	query := &domain.GetAuthorQuery{
+		ID: &up_id,
+	}
+
+	return s.R.DeleteAuthor(query)
+}
+
+func (s *AuthorService) GetallAllAuthors() ([]*db.AuthorModel, error) {
+	return s.R.GetallAuthors()
+}
+
