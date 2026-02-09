@@ -60,6 +60,7 @@ func (b *Bookhandler) Initialize(r *gin.Engine) {
 	h := r.Group("/api/v1/book")
 	h.POST("", b.CreateBook)
 	h.GET("", b.GetAllBooks)
+	h.DELETE("/:id", b.DeleteBook)
 }
 
 func NewBookHandler(r *gin.Engine, s *services.BookService) {
