@@ -46,6 +46,10 @@ func (r *AuthorRepository) DeleteAuthor(author *domain.GetAuthorQuery) error {
 	if err != nil {
 		return err
 	}
+	err = r.DB.Model(authorModel).Association("Books").Clear()
+	if err != nil {
+		return err
+	}
 	err = r.DB.Delete(authorModel).Error
 	if err != nil {
 		return err

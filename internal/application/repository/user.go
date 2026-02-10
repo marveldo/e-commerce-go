@@ -12,13 +12,17 @@ type Userrespository struct {
 }
 
 func (u *Userrespository) Createuser(i *domain.UserInput) (*db.UserModel, error) {
+	empty_cart := db.CartModel{
+		CartItems: []db.CartItemModel{},
+	}
 	user := db.UserModel{
 		Username: i.Username,
 		Email:    i.Email,
 		Bio:      i.Bio,
 		Password: i.Password,
+		Cart:     empty_cart,
 	}
-	err := u.DB.Preload("Author").Create(&user).Error
+	err := u.DB.Create(&user).Error
 	return &user, err
 }
 
@@ -28,7 +32,7 @@ func (u *Userrespository) GetUser(i *domain.GetUserQuery) (*db.UserModel, error)
 	if err != nil {
 		return nil, err
 	}
-	result := u.DB.Where(user).First(user)
+	result := u.DB.Preload("Cart").Where(user).First(user)
 	if result.Error != nil {
 		return nil, result.Error
 	}

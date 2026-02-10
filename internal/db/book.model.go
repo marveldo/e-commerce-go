@@ -26,8 +26,8 @@ const (
 type Bookmodel struct {
 	ID        uint `gorm:"primaryKey"`
 	Title     string
-	Owners    []*UserModel   `gorm:"many2many:owner_book;constraint:OnDelete:CASCADE;"`
-	Authors   []*AuthorModel `gorm:"many2many:author_book;constraint:OnDelete:CASCADE;"`
+	Owners    []*UserModel   `gorm:"many2many:owner_book"`
+	Authors   []*AuthorModel `gorm:"many2many:author_book"`
 	Genres    []BookGenre    `gorm:"type:jsonb;serializer:json"`
 	CreatedAt time.Time
 	UpdatedAt time.Time

@@ -3,6 +3,7 @@ package apperrors
 import (
 	"errors"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -46,25 +47,9 @@ func PasswordIncorrect(err error) bool {
 
 func InvalidTokenError(err error) bool {
 	msg := err.Error()
-	switch msg {
-	case "idtoken: audience provided does not match aud claim in the JWT":
-		return true
-	case "idtoken: token is expired":
-		return true
-	case "idtoken: token is not valid yet":
-		return true
-	case "idtoken: token signature verification failed":
-		return true
-	case "idtoken: invalid token, token must have three segments; found 1":
-		return true
-	case "idtoken: invalid token, token must have three segments; found 2":
-		return true
-	case "idtoken: invalid token, token must have three segments; found 0":
-		return true
-	default:
-		return false
+	return strings.Contains(msg , "idtoken:")
 	}
-}
+
 
 func ErrorFormat(g *gin.Context, err error) {
 	if CheckDuplicatekeyError(err) {

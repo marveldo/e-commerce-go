@@ -16,28 +16,32 @@ func (r *BookRepository) CreateBook(book *domain.BookInputWithoutAuthors, author
 	copier.Copy(&bookModel, book)
 	err := r.DB.Create(&bookModel).Error
 	if err != nil {
-		return nil , err
+		return nil, err
 	}
 	err = r.DB.Model(&bookModel).Association("Authors").Append(authors)
 	if err != nil {
-		return nil , err
+		return nil, err
 	}
 	err = r.DB.Preload("Authors").First(&bookModel, bookModel.ID).Error
 	if err != nil {
-		return nil , err
+		return nil, err
 	}
-	return &bookModel , nil
+	return &bookModel, nil
 }
 
 func (r *BookRepository) FindAllBooks() ([]*db.Bookmodel, error) {
 	var books []*db.Bookmodel
 	err := r.DB.Preload("Authors").Find(&books).Error
-	return books , err
+	return books, err
 }
 
 func (r *BookRepository) DeleteBook(book *domain.GetBookQuery) error {
 	bookModel := &db.Bookmodel{}
 	err := copier.Copy(bookModel, book)
+	if err != nil {
+		return err
+	}
+	err = r.DB.Model(bookModel).Association("Authors").Clear()
 	if err != nil {
 		return err
 	}
@@ -47,4 +51,3 @@ func (r *BookRepository) DeleteBook(book *domain.GetBookQuery) error {
 	}
 	return nil
 }
-
