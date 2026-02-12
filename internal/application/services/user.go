@@ -2,7 +2,9 @@ package services
 
 import (
 	"errors"
-    "github.com/marveldo/gogin/internal/application/domain"
+
+	"github.com/hibiken/asynq"
+	"github.com/marveldo/gogin/internal/application/domain"
 	"github.com/marveldo/gogin/internal/application/repository"
 	"github.com/marveldo/gogin/internal/application/utils"
 	"github.com/marveldo/gogin/internal/db"
@@ -11,6 +13,7 @@ import (
 
 type Userservice struct {
 	R *repository.Userrespository
+	C *asynq.Client
 }
 
 func (u *Userservice) Create(i *domain.UserInput) (*db.UserModel, error) {

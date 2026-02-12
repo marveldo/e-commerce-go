@@ -13,7 +13,7 @@ type CartRepository struct {
 
 func (r *CartRepository) GetCartItems(cartId uint) ([]db.CartItemModel, error) {
 	var cartItems []db.CartItemModel
-	err := r.DB.Where("cart_id = ?", cartId).Find(&cartItems).Error
+	err := r.DB.Preload("Book").Where("cart_id = ?", cartId).Find(&cartItems).Error
 	return cartItems, err
 }
 
@@ -24,12 +24,13 @@ func (r *CartRepository) AddCartItem(cart_id uint, input *domain.CartItemInputDo
 	if result.Error != nil {
 		return nil, result.Error
 	}
-	result = r.DB.Where("cart_id = ?", cart_id ).Where("book_id = ?", input.BookID).First(cartitem)
+	result = r.DB.Preload("Book").Where("cart_id = ?", cart_id).Where("book_id = ?", input.BookID).First(cartitem)
 	if result.Error != nil {
 		if result.Error == gorm.ErrRecordNotFound {
 			copier.Copy(cartitem, input)
 			cartitem.CartID = cart_id
 			err := r.DB.Create(cartitem).Error
+			err = r.DB.Preload("Book").First(cartitem, cartitem.ID).Error
 			return cartitem, err
 		}
 		return nil, result.Error

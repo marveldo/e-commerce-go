@@ -51,3 +51,12 @@ func (r *BookRepository) DeleteBook(book *domain.GetBookQuery) error {
 	}
 	return nil
 }
+
+func (r *BookRepository) GetBookById(id uint) (*db.Bookmodel, error) {
+	var bookModel db.Bookmodel
+	err := r.DB.Preload("Authors").First(&bookModel, id).Error
+	if err != nil {
+		return nil, err
+	}
+	return &bookModel, nil
+}

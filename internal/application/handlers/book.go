@@ -56,11 +56,26 @@ func (h *Bookhandler) DeleteBook(g *gin.Context) {
 
 
 }
+
+func (h *Bookhandler) GetBookById(g *gin.Context) {
+	id := g.Param("id")
+	book, err := h.r.GetBookById(id)
+	if err != nil {
+		apperrors.ErrorFormat(g, err)
+		return
+	}
+	g.JSON(200, gin.H{
+		"code":    200,
+		"message": "Book retrieved successfully",
+		"data":    book,
+	})
+}
 func (b *Bookhandler) Initialize(r *gin.Engine) {
 	h := r.Group("/api/v1/book")
 	h.POST("", b.CreateBook)
 	h.GET("", b.GetAllBooks)
 	h.DELETE("/:id", b.DeleteBook)
+	h.GET("/:id", b.GetBookById)
 }
 
 func NewBookHandler(r *gin.Engine, s *services.BookService) {

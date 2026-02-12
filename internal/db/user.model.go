@@ -16,6 +16,7 @@ type UserModel struct {
 	Bio       *string
 	Password  string       `json:"-"`
 	Books      []*Bookmodel `gorm:"many2many:owner_book"`
+	Waitlist WaitlistModel  `gorm:"foreignKey:User_ID;constraint:OnDelete:CASCADE"`
 	Cart      CartModel       `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE"`
 	Role      UserRole     `gorm:"type:text;default:user"`
 	CreatedAt time.Time

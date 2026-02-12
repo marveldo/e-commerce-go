@@ -29,6 +29,7 @@ type Bookmodel struct {
 	Owners    []*UserModel   `gorm:"many2many:owner_book"`
 	Authors   []*AuthorModel `gorm:"many2many:author_book"`
 	Genres    []BookGenre    `gorm:"type:jsonb;serializer:json"`
+	Waitlists []WaitlistModel `gorm:"many2many:waitlist_books"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }

@@ -18,7 +18,7 @@ type CartItemModel struct {
 	BookID        uint
 	Quantity      int `gorm:"not null;default:1"`
 	PriceSnapshot int
-	Book          Bookmodel `gorm:"foreignKey:BookID;references:ID" json:"-"`
+	Book          Bookmodel `gorm:"foreignKey:BookID;references:ID"`
 	Cart          CartModel `gorm:"foreignKey:CartID;references:ID" json:"-"`
 }
 

@@ -1,15 +1,20 @@
 package services
 
 import (
+	"encoding/json"
 	"strconv"
 
+	"github.com/hibiken/asynq"
+	"github.com/jinzhu/copier"
 	"github.com/marveldo/gogin/internal/application/domain"
 	"github.com/marveldo/gogin/internal/application/repository"
+	"github.com/marveldo/gogin/internal/application/tasks"
 	"github.com/marveldo/gogin/internal/db"
 )
 
 type TesterService struct {
 	R *repository.TesterRepository
+	C *asynq.Client
 }
 
 func (s *TesterService) Hello() string {
@@ -18,6 +23,22 @@ func (s *TesterService) Hello() string {
 
 func (s *TesterService) Message() string {
 	return "This is a message from TesterService"
+}
+
+func (s *TesterService) RunAddition(i *domain.Addition) error {
+    payload := tasks.AdditionPayload{}
+	err := copier.Copy(&payload , i)
+	if err != nil {
+		return err
+	}
+	b, err := json.Marshal(payload)
+	if err != nil {
+		return err
+	}
+	task := asynq.NewTask("add", b)
+	s.C.Enqueue(task)
+	return nil
+
 }
 
 func (s *TesterService) GetAllTests() ([]db.TestModel, error) {

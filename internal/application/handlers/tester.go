@@ -35,6 +35,25 @@ func (h *Testhandler) InputMessage(g *gin.Context) {
 	}
 }
 
+func (h *Testhandler) Add(g *gin.Context) {
+	input := dto.AdditionDto{}
+	domain_input := domain.Addition{}
+
+	result := validator.Validate(g, &input, &domain_input)
+	if result == nil {
+		return
+	}
+	err := h.service.RunAddition(result)
+	if err != nil {
+		apperrors.ErrorFormat(g, err)
+		return
+	}
+	g.JSON(http.StatusAccepted, gin.H{
+		"code":    http.StatusAccepted,
+		"message": "Task has been accepted",
+	})
+}
+
 func (h *Testhandler) Greet(g *gin.Context) {
 	message := h.service.Hello()
 	g.JSON(http.StatusOK, gin.H{
@@ -130,6 +149,7 @@ func (h *Testhandler) GetTest(g *gin.Context) {
 func (h *Testhandler) Initialize(r *gin.Engine) {
 	hg := r.Group("/")
 	hg.GET("", h.Greet)
+	hg.POST("/add", h.Add)
 	hg.GET("/message", h.Message)
 	hg.GET("/tests", h.GetAllTests)
 	hg.POST("/write-message", h.InputMessage)

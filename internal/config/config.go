@@ -16,6 +16,8 @@ type Config struct {
 	JWTSecret  string
 	Google_Client_Id string
 	Google_Client_Secret string
+	Redis_Host string
+	Redis_Port string
 }
 
 var config *Config
@@ -35,6 +37,9 @@ func LoadConfig() *Config {
 			JWTSecret:  os.Getenv("JWTSECRET"),
 			Google_Client_Id: os.Getenv("GOOGLE_CLIENT_ID"),
 			Google_Client_Secret: os.Getenv("GOOGLE_CLIENT_SECRET"),
+			Redis_Host : os.Getenv("REDIS_HOST"),
+			Redis_Port: os.Getenv("REDIS_PORT"),
+
 		}
 	}
 

@@ -7,6 +7,7 @@ import (
 	"github.com/marveldo/gogin/internal/application/domain"
 	"github.com/marveldo/gogin/internal/application/dto"
 	"github.com/marveldo/gogin/internal/application/repository"
+	"github.com/marveldo/gogin/internal/db"
 )
 
 type BookService struct {
@@ -54,4 +55,12 @@ func (s *BookService) DeleteBook(Id string) error {
 		ID: &up_id,
 	}
 	return s.B.DeleteBook(query)
+}
+
+func (s *BookService) GetBookById(id string) (*db.Bookmodel, error) {
+	uid, err := strconv.ParseUint(id, 10, 32)
+	if err != nil {
+		return nil, err
+	}
+	return s.B.GetBookById(uint(uid))
 }
