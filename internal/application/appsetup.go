@@ -51,23 +51,20 @@ func Setup() {
 	handlers.NewCartHandler(e, &c_s)
 	handlers.NewWaitlistHandler(e, &w_s)
 
-	asynq_chan := make(chan string)
-	gin_chan := make(chan string)
+	channel := make(chan string)
+
 	go func() {
 		if err := server.Run(&tasks.Taskhandler{}); err != nil {
-			asynq_chan <- fmt.Sprintf("asynq server error: %v", err)
+			channel <- fmt.Sprintf("asynq server error: %v", err)
 		}
 	}()
 	go func() {
 		if err := e.Run(); err != nil {
-			gin_chan <- "Gin server Failed to run"
+			channel <- "Gin server Failed to run"
 		}
 	}()
-
-	for msg := range asynq_chan {
-		log.Fatal(msg)
-	}
-	for msg := range gin_chan {
+    
+	for msg := range channel {
 		log.Fatal(msg)
 	}
 

@@ -1,10 +1,12 @@
 package services
 
 import (
+	"encoding/json"
 	"errors"
 
 	"github.com/hibiken/asynq"
 	"github.com/marveldo/gogin/internal/application/domain"
+	payload "github.com/marveldo/gogin/internal/application/payloads"
 	"github.com/marveldo/gogin/internal/application/repository"
 	"github.com/marveldo/gogin/internal/application/utils"
 	"github.com/marveldo/gogin/internal/db"
@@ -22,7 +24,18 @@ func (u *Userservice) Create(i *domain.UserInput) (*db.UserModel, error) {
 		return nil, err
 	}
 	i.Password = string(hashed_password)
-	return u.R.Createuser(i)
+	user_created, err := u.R.Createuser(i)
+	payload := payload.EmailPayload{
+		Username: user_created.Username,
+		Email:    user_created.Email,
+	}
+	b, err := json.Marshal(payload)
+	if err != nil {
+		return nil, err
+	}
+	task := asynq.NewTask("email", b)
+	u.C.Enqueue(task)
+	return user_created, err
 }
 
 func (u *Userservice) AuthenticateUser(i *domain.LoginInput) (*domain.LoginResponse, error) {

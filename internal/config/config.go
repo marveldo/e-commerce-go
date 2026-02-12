@@ -18,6 +18,8 @@ type Config struct {
 	Google_Client_Secret string
 	Redis_Host string
 	Redis_Port string
+	Email string
+	EmailPassword string
 }
 
 var config *Config
@@ -39,8 +41,9 @@ func LoadConfig() *Config {
 			Google_Client_Secret: os.Getenv("GOOGLE_CLIENT_SECRET"),
 			Redis_Host : os.Getenv("REDIS_HOST"),
 			Redis_Port: os.Getenv("REDIS_PORT"),
-
-		}
+			Email: os.Getenv("GMAIL_SEND_EMAIL"),
+			EmailPassword: os.Getenv("GMAIL_APP_PASSWORD"),
+        }
 	}
 
 	return config
