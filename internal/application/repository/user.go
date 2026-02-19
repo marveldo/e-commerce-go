@@ -28,7 +28,10 @@ func (u *Userrespository) Createuser(i *domain.UserInput) (*db.UserModel, error)
 
 	}
 	err := u.DB.Create(&user).Error
-	return &user, err
+	if err != nil {
+		return nil , err
+	}
+	return &user, nil
 }
 
 func (u *Userrespository) GetUser(i *domain.GetUserQuery) (*db.UserModel, error) {

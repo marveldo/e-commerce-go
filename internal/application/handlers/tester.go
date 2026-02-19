@@ -2,11 +2,13 @@ package handlers
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/marveldo/gogin/internal/application/domain"
 	"github.com/marveldo/gogin/internal/application/dto"
 	apperrors "github.com/marveldo/gogin/internal/application/errors"
+	"github.com/marveldo/gogin/internal/application/middleware"
 	"github.com/marveldo/gogin/internal/application/services"
 	"github.com/marveldo/gogin/internal/application/validator"
 )
@@ -146,6 +148,14 @@ func (h *Testhandler) GetTest(g *gin.Context) {
 	})
 }
 
+func (h *Testhandler) GetTimezone(g *gin.Context) {
+	timezone := g.MustGet("timezone").(*time.Location)
+	g.JSON(http.StatusOK, gin.H{
+		"code":    http.StatusOK,
+		"message": "Succcessful",
+		"data":    timezone.String(),
+	})
+}
 func (h *Testhandler) Initialize(r *gin.Engine) {
 	hg := r.Group("/")
 	hg.GET("", h.Greet)
@@ -157,6 +167,7 @@ func (h *Testhandler) Initialize(r *gin.Engine) {
 	hg.PUT("/tests/:id", h.UpdateTest)
 	hg.DELETE("/tests/:id", h.DeleteTest)
 	hg.GET("/tests/:id", h.GetTest)
+	hg.GET("/timezone", middleware.Gettimezone(), h.GetTimezone)
 }
 
 func NewTestHandler(r *gin.Engine, s *services.TesterService) {

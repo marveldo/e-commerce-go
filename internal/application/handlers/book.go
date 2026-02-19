@@ -33,7 +33,13 @@ func (h *Bookhandler) CreateBook(g *gin.Context) {
 }
 
 func (h *Bookhandler) GetAllBooks(g *gin.Context) {
-	books, err := h.r.FindAllBooks()
+	query  := dto.BookQueryDto{}
+	query_domain := domain.GetBookQuery{}
+	result := validator.ValidateQuery(g, &query , &query_domain)
+	if result == nil {
+		return
+	}
+	books, err := h.r.FindAllBooks(result)
 	if err != nil {
 		apperrors.ErrorFormat(g, err)
 		return

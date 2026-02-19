@@ -2,6 +2,7 @@ package repository
 
 import (
 	"github.com/jinzhu/copier"
+	"github.com/lib/pq"
 	"github.com/marveldo/gogin/internal/application/domain"
 	"github.com/marveldo/gogin/internal/db"
 	"gorm.io/gorm"
@@ -29,9 +30,16 @@ func (r *BookRepository) CreateBook(book *domain.BookInputWithoutAuthors, author
 	return &bookModel, nil
 }
 
-func (r *BookRepository) FindAllBooks() ([]*db.Bookmodel, error) {
-	var books []*db.Bookmodel
-	err := r.DB.Preload("Authors").Find(&books).Error
+func (r *BookRepository) FindAllBooks(query *domain.GetBookQuery) ([]*db.Bookmodel, error) {
+	books := []*db.Bookmodel{}
+	dbquery := r.DB.Preload("Authors")
+	if query.Title != "" {
+		dbquery = dbquery.Where("title ILIKE ?", "%"+query.Title+"%")
+	}
+	if len(query.Genres) > 0 {
+		dbquery = dbquery.Where("ARRAY(SELECT jsonb_array_elements_text(genres)) && ?", pq.Array(query.Genres))
+	}
+	err := dbquery.Find(&books).Error
 	return books, err
 }
 

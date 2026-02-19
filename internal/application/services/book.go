@@ -31,12 +31,12 @@ func (s *BookService) CreateBook(bookInput *domain.BookInput) (*dto.BookResponse
 	return bookResponse, nil
 }
 
-func (s *BookService) FindAllBooks() ([]*dto.BookResponsedto, error) {
-	bookModels, err := s.B.FindAllBooks()
+func (s *BookService) FindAllBooks(query *domain.GetBookQuery) ([]*dto.BookResponsedto, error) {
+	bookModels, err := s.B.FindAllBooks(query)
 	if err != nil {
 		return nil, err
 	}
-	var bookResponses []*dto.BookResponsedto
+	bookResponses := []*dto.BookResponsedto{}
 	for _, bookModel := range bookModels {
 		bookResponse := &dto.BookResponsedto{}
 		copier.Copy(bookResponse, bookModel)
@@ -52,7 +52,7 @@ func (s *BookService) DeleteBook(Id string) error {
 	}
 	up_id := uint(id)
 	query := &domain.GetBookQuery{
-		ID: &up_id,
+		ID: up_id,
 	}
 	return s.B.DeleteBook(query)
 }

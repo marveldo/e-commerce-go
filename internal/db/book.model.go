@@ -1,6 +1,10 @@
 package db
 
-import "time"
+import (
+	"time"
+
+	"gorm.io/gorm"
+)
 
 type BookGenre string
 
@@ -24,12 +28,29 @@ const (
 )
 
 type Bookmodel struct {
-	ID        uint `gorm:"primaryKey"`
-	Title     string
-	Owners    []*UserModel   `gorm:"many2many:owner_book"`
-	Authors   []*AuthorModel `gorm:"many2many:author_book"`
-	Genres    []BookGenre    `gorm:"type:jsonb;serializer:json"`
-	Waitlists []WaitlistModel `gorm:"many2many:waitlist_books"`
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	ID          uint `gorm:"primaryKey"`
+	Title       string
+	Price       int64
+	Description string
+	Owners      []*UserModel    `gorm:"many2many:owner_book"`
+	Authors     []*AuthorModel  `gorm:"many2many:author_book"`
+	Genres      []BookGenre     `gorm:"type:jsonb;serializer:json"`
+	Waitlists   []WaitlistModel `gorm:"many2many:waitlist_books"`
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+}
+
+func (b *Bookmodel) BeforeCreate(tx *gorm.DB) (err error) {
+	b.Price = int64(b.Price * 100)
+	return nil
+}
+
+func (b *Bookmodel) AfterCreate(tx *gorm.DB) (err error) {
+	b.Price = int64(b.Price / 100)
+	return nil
+}
+
+func (b *Bookmodel) AfterFind(tx *gorm.DB) (err error) {
+	b.Price = int64(b.Price / 100)
+	return nil
 }

@@ -25,6 +25,9 @@ func (u *Userservice) Create(i *domain.UserInput) (*db.UserModel, error) {
 	}
 	i.Password = string(hashed_password)
 	user_created, err := u.R.Createuser(i)
+	if err != nil {
+		return nil, err
+	}
 	payload := payload.EmailPayload{
 		Username: user_created.Username,
 		Email:    user_created.Email,
@@ -50,11 +53,11 @@ func (u *Userservice) AuthenticateUser(i *domain.LoginInput) (*domain.LoginRespo
 	if err != nil {
 		return nil, errors.New("Password Not Correct")
 	}
-	access_token, err := utils.GenrateJwtToken(user.Username, user.ID, string(utils.ACCESS))
+	access_token, err := utils.GenrateJwtToken(user.Username, user.ID, string(utils.ACCESS), 24)
 	if err != nil {
 		return nil, err
 	}
-	refresh_token, err := utils.GenrateJwtToken(user.Username, user.ID, string(utils.REFRESH))
+	refresh_token, err := utils.GenrateJwtToken(user.Username, user.ID, string(utils.REFRESH), 48)
 	if err != nil {
 		return nil, err
 	}
@@ -80,11 +83,11 @@ func (u *Userservice) GoogleLogin(i *domain.GoogleLoginDomain) (*domain.LoginRes
 	if err != nil {
 		return nil, err
 	}
-	access_token, err := utils.GenrateJwtToken(user.Username, user.ID, string(utils.ACCESS))
+	access_token, err := utils.GenrateJwtToken(user.Username, user.ID, string(utils.ACCESS), 24)
 	if err != nil {
 		return nil, err
 	}
-	refresh_token, err := utils.GenrateJwtToken(user.Username, user.ID, string(utils.REFRESH))
+	refresh_token, err := utils.GenrateJwtToken(user.Username, user.ID, string(utils.REFRESH), 48)
 	if err != nil {
 		return nil, err
 	}
