@@ -20,7 +20,7 @@ func (r *BookRepository) CreateBook(book *domain.BookInputWithoutAuthors, author
 		return nil, err
 	}
 	err = r.DB.Model(&bookModel).Association("Authors").Append(authors)
-	if err != nil {
+	if err != nil { 
 		return nil, err
 	}
 	err = r.DB.Preload("Authors").First(&bookModel, bookModel.ID).Error

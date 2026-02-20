@@ -20,6 +20,7 @@ type Config struct {
 	Redis_Port string
 	Email string
 	EmailPassword string
+	Paystack_Secret_Key string
 }
 
 var config *Config
@@ -43,6 +44,7 @@ func LoadConfig() *Config {
 			Redis_Port: os.Getenv("REDIS_PORT"),
 			Email: os.Getenv("GMAIL_SEND_EMAIL"),
 			EmailPassword: os.Getenv("GMAIL_APP_PASSWORD"),
+			Paystack_Secret_Key : os.Getenv("PAYSTACK_SECRET_KEY"),
         }
 	}
 

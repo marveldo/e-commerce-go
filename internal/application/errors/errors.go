@@ -47,9 +47,12 @@ func PasswordIncorrect(err error) bool {
 
 func InvalidTokenError(err error) bool {
 	msg := err.Error()
-	return strings.Contains(msg , "idtoken:")
-	}
+	return strings.Contains(msg, "idtoken:")
+}
 
+func CartIdIntergrityError(err error) bool {
+	return err.Error() == "Wrong CartId Submitted"
+}
 
 func ErrorFormat(g *gin.Context, err error) {
 	if CheckDuplicatekeyError(err) {
@@ -84,6 +87,11 @@ func ErrorFormat(g *gin.Context, err error) {
 	} else if InvalidTokenError(err) {
 		g.JSON(http.StatusUnauthorized, gin.H{
 			"status": http.StatusUnauthorized,
+			"error":  err.Error(),
+		})
+	} else if CartIdIntergrityError(err) {
+		g.JSON(http.StatusForbidden, gin.H{
+			"status": http.StatusForbidden,
 			"error":  err.Error(),
 		})
 	} else {

@@ -42,6 +42,8 @@ func Setup() {
 	c_s := services.CartService{R: &c_r, U: &u_r}
 	w_r := repository.WaitlistRepository{DB: dab}
 	w_s := services.WaitlistService{W: &w_r, U: &u_r, B: &b_r}
+	p_r := repository.PaymentRepository{DB: dab}
+	p_s := services.PaymentService{U : &u_r , C : &c_r , R : &p_r}
 
 	e := routes.GetEngine()
 	handlers.NewTestHandler(e, &t_s)
@@ -50,6 +52,7 @@ func Setup() {
 	handlers.NewAuthorHandler(e, &a_s)
 	handlers.NewCartHandler(e, &c_s)
 	handlers.NewWaitlistHandler(e, &w_s)
+	handlers.NewPaymentHandler(e, &p_s)
 
 	channel := make(chan string)
 

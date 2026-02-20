@@ -26,7 +26,7 @@ var jwt_secret = func() []byte {
 	return []byte(config.LoadConfig().JWTSecret)
 }
 
-func GenrateJwtToken(un string, id uint, ty string, exp_hour int ) (string, error) {
+func GenrateJwtToken(un string, id uint, ty string, exp_hour int) (string, error) {
 	if ty != "access" && ty != "refresh" {
 		return "", errors.New("Token Type Must be Access or Refresh")
 	}
