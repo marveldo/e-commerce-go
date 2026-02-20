@@ -11,6 +11,7 @@ type OrderModel struct {
 	UserId    uint `gorm:"uniqueIndex"`
 	Status    bool `gorm:"not null;default:false"`
 	Price     int64
+	Reference string `gorm:"unique"`
 	CreatedAt time.Time `gorm:"autoCreateTime"`
 	UpdatedAt time.Time `gorm:"autoUpdateTime"`
 }

@@ -35,7 +35,7 @@ func (p *PaymentService) PlaceOrder(user_id uint, cart_domain *domain.CreatePaym
 	if err != nil {
 		return nil, err
 	}
-	resp, err := utils.CallPaystackUrl(g, user.Email, total, "")
+	resp, err := utils.CallPaystackUrl(g, user.Email, total, "", order_item.ID)
 	if err != nil {
 		tx.Rollback()
 		return nil, err

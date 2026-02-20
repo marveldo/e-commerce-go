@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"fmt"
+
 	"github.com/marveldo/gogin/internal/db"
 	"gorm.io/gorm"
 )
@@ -23,6 +25,12 @@ func (p *PaymentRepository) CreatePaymentOrder(cart_items []db.CartItemModel, us
 		return nil, tx.Error, nil, total
 	}
 	err := tx.Create(order_item).Error
+	if err != nil {
+		return nil, err, nil, total
+	}
+
+	order_item.Reference = fmt.Sprintf("ORD-%v", order_item.ID)
+	err = tx.Save(order_item).Error
 	if err != nil {
 		return nil, err, nil, total
 	}
