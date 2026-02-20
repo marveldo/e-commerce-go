@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+
 	"net/http"
 	"time"
 
@@ -17,7 +18,7 @@ func CallPaystackUrl(g *gin.Context, email string, price float64, callback_url s
 		"email":        email,
 		"amount":       price,
 		"callback_url": callback_url,
-		"reference" : fmt.Sprintf("ORD-%v",ord_id),
+		"reference":    fmt.Sprintf("ORD-%v", ord_id),
 	}
 	json_data, err := json.Marshal(data)
 	if err != nil {

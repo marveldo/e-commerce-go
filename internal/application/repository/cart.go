@@ -17,6 +17,12 @@ func (r *CartRepository) GetCartItems(cartId uint) ([]db.CartItemModel, error) {
 	return cartItems, err
 }
 
+func (r *CartRepository) GetCartItemsWithtx(tx *gorm.DB, cartId uint) ([]db.CartItemModel, error) {
+	var cartItems []db.CartItemModel
+	err := tx.Preload("Book").Where("cart_id = ?", cartId).Find(&cartItems).Error
+	return cartItems, err
+}
+
 func (r *CartRepository) AddCartItem(cart_id uint, input *domain.CartItemInputDomain) (*db.CartItemModel, error) {
 	cartitem := &db.CartItemModel{}
 	cart := &db.CartModel{}

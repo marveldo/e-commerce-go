@@ -54,6 +54,10 @@ func CartIdIntergrityError(err error) bool {
 	return err.Error() == "Wrong CartId Submitted"
 }
 
+func TotalIntergrityError(err error) bool {
+	return err.Error() == "Total Must be greater than zero"
+}
+
 func ErrorFormat(g *gin.Context, err error) {
 	if CheckDuplicatekeyError(err) {
 		g.JSON(http.StatusBadRequest, gin.H{
@@ -92,6 +96,11 @@ func ErrorFormat(g *gin.Context, err error) {
 	} else if CartIdIntergrityError(err) {
 		g.JSON(http.StatusForbidden, gin.H{
 			"status": http.StatusForbidden,
+			"error":  err.Error(),
+		})
+	} else if TotalIntergrityError(err) {
+		g.JSON(http.StatusBadRequest, gin.H{
+			"status": http.StatusBadRequest,
 			"error":  err.Error(),
 		})
 	} else {

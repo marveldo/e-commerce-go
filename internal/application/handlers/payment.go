@@ -37,9 +37,30 @@ func (p *PaymentHandler) TriggerPayment(c *gin.Context) {
 	})
 }
 
+func (p *PaymentHandler) Paymenthook(c *gin.Context) {
+	input_dto := dto.PaymentWebhookdto{}
+	input_domain := domain.PaymentWebhookdomain{}
+	result := validator.Validate(c, &input_dto, &input_domain)
+	if result == nil {
+		return
+	}
+	data, err := p.services.UpdateOrder(result)
+	if err != nil {
+		apperrors.ErrorFormat(c, err)
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"code":    http.StatusOK,
+		"message": "Order Successful",
+		"data":    data,
+	})
+
+}
+
 func (p *PaymentHandler) Initialize(r *gin.Engine) {
 	h := r.Group("/api/v1/payment")
+	allowed_cidrs := []string{"52.31.139.75", "52.49.173.169", "52.214.14.220"}
 	h.POST("", middleware.Authmiddleware(), p.TriggerPayment)
+	h.POST("/hook", middleware.IpwhitelistMiddleware(allowed_cidrs), p.Paymenthook)
 }
 
 func NewPaymentHandler(r *gin.Engine, s *services.PaymentService) {

@@ -18,3 +18,10 @@ type PaymentCreatedResponseDto struct {
 type CreatePaymentDto struct {
 	CartID uint `json:"cart_id" binding:"required"`
 }
+
+type PaymentWebhookdto struct {
+	Event string `json:"event"`
+	Data  struct {
+		Reference string `json:"reference"`
+	} `json:"data"`
+}
