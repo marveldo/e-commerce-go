@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/google/uuid"
 	"github.com/marveldo/gogin/internal/application/domain"
 	"github.com/marveldo/gogin/internal/db"
 	"gorm.io/gorm"
@@ -31,7 +32,7 @@ func (p *PaymentRepository) CreatePaymentOrder(cart_items []db.CartItemModel, us
 		return nil, err, nil, total
 	}
 
-	order_item.Reference = fmt.Sprintf("ORD-%v", order_item.ID)
+	order_item.Reference = fmt.Sprintf("ORD-%v", uuid.New().String())
 	err = tx.Save(order_item).Error
 	if err != nil {
 		return nil, err, nil, total
@@ -52,7 +53,7 @@ func (p *PaymentRepository) UpdatePaymentOrder(domain *domain.PaymentWebhookdoma
 		return nil, nil, err
 	}
 	if order_item.IsProcessed {
-		return nil ,nil, errors.New("Item already Proccesed")
+		return nil, nil, errors.New("Item already Proccesed")
 	}
 	switch domain.Event {
 	case "charge.success":

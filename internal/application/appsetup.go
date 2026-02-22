@@ -43,7 +43,7 @@ func Setup() {
 	w_r := repository.WaitlistRepository{DB: dab}
 	w_s := services.WaitlistService{W: &w_r, U: &u_r, B: &b_r}
 	p_r := repository.PaymentRepository{DB: dab}
-	p_s := services.PaymentService{U : &u_r , C : &c_r , R : &p_r}
+	p_s := services.PaymentService{U: &u_r, C: &c_r, R: &p_r, AC: client}
 
 	e := routes.GetEngine()
 	handlers.NewTestHandler(e, &t_s)
@@ -66,7 +66,7 @@ func Setup() {
 			channel <- "Gin server Failed to run"
 		}
 	}()
-    
+
 	for msg := range channel {
 		log.Fatal(msg)
 	}

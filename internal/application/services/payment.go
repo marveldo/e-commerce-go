@@ -6,19 +6,21 @@ import (
 	"io"
 
 	"github.com/gin-gonic/gin"
+	"github.com/hibiken/asynq"
 	"github.com/jinzhu/copier"
 	"github.com/marveldo/gogin/internal/application/domain"
 	"github.com/marveldo/gogin/internal/application/dto"
+	payload "github.com/marveldo/gogin/internal/application/payloads"
 	"github.com/marveldo/gogin/internal/application/repository"
 	"github.com/marveldo/gogin/internal/application/utils"
 	"github.com/marveldo/gogin/internal/db"
-
 )
 
 type PaymentService struct {
 	R *repository.PaymentRepository
 	U *repository.Userrespository
 	C *repository.CartRepository
+	AC *asynq.Client
 }
 
 func (p *PaymentService) PlaceOrder(user_id uint, cart_domain *domain.CreatePaymentDomain, g *gin.Context) (*dto.PaymentCreatedResponseDto, error) {
@@ -38,16 +40,16 @@ func (p *PaymentService) PlaceOrder(user_id uint, cart_domain *domain.CreatePaym
 	if err != nil {
 		return nil, err
 	}
-	defer func(){
-      	if tx != nil {
+	defer func() {
+		if tx != nil {
 			tx.Rollback()
 		}
 	}()
 	if total <= 0 {
-		return nil , errors.New("Total Must be greater than zero")
+		return nil, errors.New("Total Must be greater than zero")
 	}
-	
-	resp, err := utils.CallPaystackUrl(g, user.Email, total, "", order_item.ID)
+
+	resp, err := utils.CallPaystackUrl(g, user.Email, total, "", order_item.Reference)
 	if err != nil {
 		return nil, err
 	}
@@ -81,51 +83,60 @@ func (p *PaymentService) PlaceOrder(user_id uint, cart_domain *domain.CreatePaym
 
 func (p *PaymentService) UpdateOrder(payment_domain *domain.PaymentWebhookdomain) (*db.OrderModel, error) {
 	var books []db.Bookmodel
-	order_item , tx , err := p.R.UpdatePaymentOrder((payment_domain))
+	order_item, tx, err := p.R.UpdatePaymentOrder((payment_domain))
 	if err != nil {
-       return nil , err
+		return nil, err
 	}
-	defer func(){
+	defer func() {
 		if tx != nil {
 			tx.Rollback()
 		}
 	}()
 	switch order_item.Status {
-	case db.Success :
-		user , err := p.U.GetUserWithtx(tx,&domain.GetUserQuery{ID: &order_item.UserId})
+	case db.Success:
+		user, err := p.U.GetUserWithtx(tx, &domain.GetUserQuery{ID: &order_item.UserId})
 		if err != nil {
-            return nil, err
+			return nil, err
 		}
-		cart_items , err := p.C.GetCartItemsWithtx(tx,user.Cart.ID)
-        if err != nil {
-		return nil ,err
-	    }
-		for _ , cart := range cart_items {
+		cart_items, err := p.C.GetCartItemsWithtx(tx, user.Cart.ID)
+		if err != nil {
+			return nil, err
+		}
+		for _, cart := range cart_items {
 			books = append(books, cart.Book)
 		}
 		err = tx.Model(user).Association("Books").Append(books)
 		if err != nil {
-			return nil , err
+			return nil, err
 		}
-		cart := user.Cart 
+		cart := user.Cart
 
 		err = tx.Model(&cart).Association("CartItems").Clear()
 		if err != nil {
 			return nil, err
 		}
+		email_payload := payload.EmailPayload{
+			Email: user.Email,
+			Username: user.Username,
+		}
+		b , err := json.Marshal(email_payload)
+		if err != nil {
+			return nil, err
+		}
+		task := asynq.NewTask("success-email", b)
+		p.AC.Enqueue(task)
+        tx.Commit()
+		tx = nil
+		return order_item, nil
+	case db.Failed:
 		tx.Commit()
 		tx = nil
-		return order_item , nil
-	case db.Failed :
-		tx.Commit()
-		tx = nil
-		return order_item , nil
-    
-	default :
-	   tx.Commit()
-	   tx = nil
-	   return order_item , nil
-	}
+		return order_item, nil
 
+	default:
+		tx.Commit()
+		tx = nil
+		return order_item, nil
+	}
 
 }

@@ -30,6 +30,26 @@ func (t *Taskhandler) ProcessTask(ctx context.Context, task *asynq.Task) error {
 			fmt.Printf("Error is : %v", err.Error())
 			return err
 		}
+	case "success-email" :
+		var data payload.EmailPayload
+		if err := json.Unmarshal(task.Payload(),&data); err != nil {
+			return err
+		}
+		err := SendSuccessMail(&data)
+		if err != nil {
+			fmt.Printf("Error is : %v", err.Error())
+			return err
+		}
+	case "failed-email":
+		var data payload.EmailPayload
+		if err := json.Unmarshal(task.Payload(),&data); err != nil {
+			return err
+		}
+		err := SendFailedEmail(&data)
+		if err != nil {
+			fmt.Printf("Error is : %v", err.Error())
+			return err
+		}
 	default:
 		return fmt.Errorf("unexpected task type %q \n", task.Type())
 	}
