@@ -17,9 +17,9 @@ import (
 )
 
 type PaymentService struct {
-	R *repository.PaymentRepository
-	U *repository.Userrespository
-	C *repository.CartRepository
+	R  *repository.PaymentRepository
+	U  *repository.Userrespository
+	C  *repository.CartRepository
 	AC *asynq.Client
 }
 
@@ -110,22 +110,22 @@ func (p *PaymentService) UpdateOrder(payment_domain *domain.PaymentWebhookdomain
 			return nil, err
 		}
 		cart := user.Cart
-
-		err = tx.Model(&cart).Association("CartItems").Clear()
-		if err != nil {
+        
+		if err := tx.Where("cart_id = ?", cart.ID).Delete(&cart.CartItems).Error; err != nil {
 			return nil, err
 		}
+
 		email_payload := payload.EmailPayload{
-			Email: user.Email,
+			Email:    user.Email,
 			Username: user.Username,
 		}
-		b , err := json.Marshal(email_payload)
+		b, err := json.Marshal(email_payload)
 		if err != nil {
 			return nil, err
 		}
 		task := asynq.NewTask("success-email", b)
 		p.AC.Enqueue(task)
-        tx.Commit()
+		tx.Commit()
 		tx = nil
 		return order_item, nil
 	case db.Failed:
