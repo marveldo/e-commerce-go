@@ -46,11 +46,30 @@ func (c *CartHandler) AddCartItem(g *gin.Context) {
 	})
 
 }
+func (c *CartHandler) RemoveCartItem(g *gin.Context) {
+	user_id := g.MustGet("user_id").(uint)
+	input_domain := &domain.CartItemInputDomain{}
+	cart_input := &dto.CartItemInputDto{}
+	result := validator.Validate(g, cart_input, input_domain)
+	if result == nil {
+		return
+	}
+	err := c.s.RemoveCartItem(user_id, result)
+	if err != nil {
+		apperrors.ErrorFormat(g, err)
+		return
+	}
+	g.JSON(200, gin.H{
+		"code": 200,
+		"data": "Item removed from cart",
+	})
+}
 
 func (c *CartHandler) Initialize(r *gin.Engine) {
 	cart := r.Group("api/v1/cart")
 	cart.GET("", middleware.Authmiddleware(), c.GetCartItems)
 	cart.POST("/add", middleware.Authmiddleware(), c.AddCartItem)
+	cart.POST("/remove", middleware.Authmiddleware(), c.RemoveCartItem)
 }
 
 func NewCartHandler(r *gin.Engine, s *services.CartService) {

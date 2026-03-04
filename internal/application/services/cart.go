@@ -27,3 +27,11 @@ func (s *CartService) AddCartItem(user_id uint, input *domain.CartItemInputDomai
 	}
 	return s.R.AddCartItem(user.Cart.ID, input)
 }
+
+func (s *CartService) RemoveCartItem(user_id uint, input *domain.CartItemInputDomain) error {
+	user , err := s.U.GetUser(&domain.GetUserQuery{ID: &user_id})
+	if err != nil {
+		return err
+	}
+	return s.R.RemoveCartItem(user.Cart.ID, input)
+}

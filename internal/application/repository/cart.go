@@ -50,6 +50,29 @@ func (r *CartRepository) AddCartItem(cart_id uint, input *domain.CartItemInputDo
 
 }
 
+func (r *CartRepository) RemoveCartItem(cart_id uint , input *domain.CartItemInputDomain) error {
+	cartitem := &db.CartItemModel{}
+	cart := &db.CartModel{}
+	result := r.DB.Model(&db.CartModel{}).Where("id = ?", cart_id).First(cart)
+	if result.Error != nil {
+		return result.Error
+	}
+	result = r.DB.Preload("Book").Where("cart_id = ?", cart_id).Where("book_id = ?", input.BookID).First(cartitem)
+	if result.Error != nil {
+		return result.Error
+	}
+	if cartitem.Quantity < input.Quantity {
+		return result.Error
+	}
+	cartitem.Quantity -= input.Quantity
+	if cartitem.Quantity == 0 {
+		err := r.DB.Delete(cartitem).Error
+		return err
+	}
+	err := r.DB.Save(cartitem).Error
+	return err
+}
+
 // func (r *CartRepository) RemoveCartItem(cart_id uint, book_id uint) error {
 // 	result := r.DB.Where("cart_id = ?", cart_id).Where("book_id = ?", book_id).Delete(&db.CartItemModel{})
 // 	return result.Error
