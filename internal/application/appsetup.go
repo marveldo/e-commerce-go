@@ -31,6 +31,8 @@ func Setup() {
 	redis_opt := tasks.GetRedisOptions(cfg)
 	client := tasks.CreateAsynqClient(redis_opt)
 	server := tasks.GetAsynqServer(redis_opt)
+
+	//Dependency Injection
 	t_r := repository.TesterRepository{DB: dab}
 	t_s := services.TesterService{R: &t_r, C: client}
 	u_r := repository.Userrespository{DB: dab}
