@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"os"
+	"strconv"
 
 	"github.com/joho/godotenv"
 )
@@ -21,6 +22,8 @@ type Config struct {
 	Email string
 	EmailPassword string
 	Paystack_Secret_Key string
+	Request_Per_Second int
+	Request_Burst int
 }
 
 var config *Config
@@ -45,6 +48,20 @@ func LoadConfig() *Config {
 			Email: os.Getenv("GMAIL_SEND_EMAIL"),
 			EmailPassword: os.Getenv("GMAIL_APP_PASSWORD"),
 			Paystack_Secret_Key : os.Getenv("PAYSTACK_SECRET_KEY"),
+			Request_Per_Second: func () int {
+				rps, err := strconv.Atoi(os.Getenv("REQUEST_PER_SECOND"))
+				if err != nil {
+					panic(fmt.Sprintf("Error converting REQUEST_PER_SECOND to int: %v", err))
+				}
+				return rps
+			}(),
+			Request_Burst: func () int {
+				rb, err := strconv.Atoi(os.Getenv("REQUEST_BURST"))
+				if err != nil {
+					panic(fmt.Sprintf("Error converting REQUEST_BURST to int: %v", err))
+				}
+				return rb
+			}(),
         }
 	}
 

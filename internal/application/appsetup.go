@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/marveldo/gogin/internal/application/handlers"
+	"github.com/marveldo/gogin/internal/application/middleware"
 	"github.com/marveldo/gogin/internal/application/repository"
 	"github.com/marveldo/gogin/internal/application/routes"
 	"github.com/marveldo/gogin/internal/application/services"
@@ -46,6 +47,7 @@ func Setup() {
 	p_s := services.PaymentService{U: &u_r, C: &c_r, R: &p_r, AC: client}
 
 	e := routes.GetEngine()
+	e.Use(middleware.RatelimitMiddleware(cfg))
 	handlers.NewTestHandler(e, &t_s)
 	handlers.NewUserHandler(e, &u_s)
 	handlers.NewBookHandler(e, &b_s)
